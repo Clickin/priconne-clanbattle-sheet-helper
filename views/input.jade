@@ -1,0 +1,44 @@
+extends layout
+
+block content
+  form(method="post" name="grimm")
+    input(type="date" value=moment().format('YYYY-MM-DD') name="current")#current
+    br
+    button(type="button" onclick="setDateToday()") 오늘로 
+    button(type="button" onclick="setDateYesterday()") 어제로
+    br
+    br
+    input(type="test" placeholder="시트 url" name="sheet_url")#sheet_url
+    br
+    br
+    textarea(cols="200px", rows="10" placeholder="ex: 클릭 와이번 123456" name="list" onkeydown="resize(this)", onkeyup="resize(this)")#list
+    br
+    button(type="submit") 제출
+  script(src="https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/localforage@1.7.3/dist/localforage.min.js")
+  script.
+    function setDateToday() {
+      let cur = document.getElementById('current')
+      cur.value = moment().format('YYYY-MM-DD')
+    }
+    function setDateYesterday() {
+      let cur = document.getElementById('current')
+      cur.value = moment().subtract(1, 'days').format('YYYY-MM-DD')
+    }
+    function resize(obj) {
+      obj.style.height = "1px";
+      obj.style.height = (12+obj.scrollHeight)+"px";
+    }
+    localforage.getItem('url')
+    .then((value) => {
+      let sheet_url = document.getElementById("sheet_url")
+      sheet_url.value = value
+    })
+    .catch(function(err) {
+      // This code runs if there were any errors
+      console.log(err);
+    });
+    let sheet_url = document.getElementById("sheet_url")
+    sheet_url.addEventListener('blur', e => {
+      localforage.setItem('url', sheet_url.value)
+    })

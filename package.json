@@ -1,0 +1,23 @@
+{
+  "name": "priconne-clanbattle-sheet-helper",
+  "version": "0.1.1",
+  "license": "UNLICENCED",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "eslint": "^5.16.0",
+    "express": "~4.16.1",
+    "googleapi": "^1.0.2",
+    "googleapis": "39",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "moment": "^2.24.0",
+    "morgan": "~1.9.1",
+    "serve-favicon": "^2.5.0"
+  }
+}
