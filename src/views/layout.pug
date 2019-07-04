@@ -1,0 +1,38 @@
+html(lang='ko')
+  head
+    title= title
+    link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/materialize-css@1.0.0/dist/css/materialize.min.css')
+    link(href='https://fonts.googleapis.com/icon?family=Material+Icons' rel='stylesheet')
+    script(src='https://cdn.jsdelivr.net/npm/materialize-css@1.0.0/dist/js/materialize.min.js')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  body
+    div.container
+      div.row
+        nav.blue.lighten-1
+          div.nav-wrapper
+            a(href="#" data-target="mobile").sidenav-trigger
+              i.material-icons menu
+            ul#nav-mobile.center.hide-on-med-and-down
+              li
+                a(href="https://rwiki.jp/priconne_redive/") rwiki
+              li
+                a(href="https://expugn.github.io/priconne-quest-helper/") 퀘스트 헬퍼
+              li
+                a(href="https://gall.dcinside.com/mgallery/board/lists?id=purikone_redive") 프리코네 마갤
+              li
+                a(href="https://gamewith.jp/pricone-re/") gamewith
+      ul#mobile.sidenav
+        li
+          a(href="https://rwiki.jp/priconne_redive/") rwiki
+        li
+          a(href="https://expugn.github.io/priconne-quest-helper/") 퀘스트 헬퍼
+        li
+          a(href="https://gall.dcinside.com/mgallery/board/lists?id=purikone_redive") 프리코네 마갤
+        li
+          a(href="https://gamewith.jp/pricone-re/") gamewith
+      block content
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('.sidenav');
+      var instances = M.Sidenav.init(elems);
+    });

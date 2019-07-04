@@ -1,0 +1,47 @@
+extends layout
+
+block content
+  div.s12.l8.col
+    input(type="hidden" value="false")#hidden
+    div.row
+      div.col.s8.l7.input-field
+        input(type="date" value=moment().utcOffset("+04:00").format("YYYY-MM-DD") name="targetDate")#targetDate
+      div.col.s2.l1
+        button(type="button" onclick="setDateYesterday()").btn.wave-effect
+          i.material-icons.small chevron_left
+      div.col.s2.l1
+        button(type="button" onclick="setDateToday()").btn.wave-effect
+          i.material-icons.small chevron_right
+    div.row
+      div.input-field.col.s10.l7
+        label(for="sheetUrl") 시트 url
+        input(type="text" placeholder="시트 url" name="sheetUrl")#sheetUrl
+      div.col.s2.l1
+        button(type="button" onclick="getInfo()").btn.wave-effect
+          i.material-icons.small cloud_download
+    div.divider
+    div.input-field.col.s12.l8
+      select(name="boss" required)#boss
+        each i in [0, 1, 2, 3, 4, 5]
+          if(i == 0)
+            option(value=i disabled selected) 보스 선택
+          else
+            option(value=i) 정보를 불러오세요
+    br
+    div.row
+      p
+        label(for="downward")
+          input(type="radio" name="order" value="downward" checked)#downward
+          span 위에서 아래
+        label(for="upward")
+          input(type="radio" name="order" value="upward")#upward
+          span 아래에서 위
+    p#lastValue 마지막 입력:
+    div.row.input-field
+      textarea(placeholder="ex: 클 123456" name="list")#list.materialize-textarea
+    button(type="button" onclick="submit()").btn-large.wave-effect
+      i.material-icons.large cloud_upload 
+  script(src='https://cdn.jsdelivr.net/npm/moment@2.24.0/moment.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/localforage@1.7.3/dist/localforage.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/axios@0.19.0/dist/axios.min.js')
+  script(src='/javascripts/helper.js')
