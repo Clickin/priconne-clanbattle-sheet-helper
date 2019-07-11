@@ -28,22 +28,33 @@ sheetUrl.addEventListener('blur', e => {
 //Functions
 
 function getInfo() {
+  M.toast({html: "정보 받아오는중..."})
   axios({
-    method: 'post',
+    method: 'get',
     url: '/oauth/info',
-    data: {
+    params: {
       sheetUrl: sheetUrl.value,
       targetDate: targetDate.value
     }
   })
   .then(function (res) {
-    lastValue.innerHTML = '마지막 입력: ' + res.data.lastValue
-    for (let i = 0; i < res.data.boss.length; i++) {
-      bossSelect.options[i+1].innerText = res.data.boss[i][1]
-      bossSelect.options[i+1].value = res.data.boss[i][0]
+    if (res.data.lastValue !== undefined) {
+      lastValue.innerHTML = '마지막 입력: ' + res.data.lastValue
     }
-    M.FormSelect.init(bossSelect)
-    hidden.value = 'true'
+    if (res.data.boss !== undefined) {
+      for (let i = 0; i < res.data.boss.length; i++) {
+        bossSelect.options[i+1].innerText = res.data.boss[i][1]
+        bossSelect.options[i+1].value = res.data.boss[i][0]
+      }
+      M.FormSelect.init(bossSelect)
+    }
+    
+    if (res.data.message[0] == "받아오기 완료") {
+      hidden.value = 'true'
+    }
+    for(let node of res.data.message) {
+      M.toast({html: node})
+    }
   })
   .catch(function (error) {
     console.error(error)
@@ -67,7 +78,7 @@ function check() {
     M.toast({html: 'url을 제대로 입력하세요'})
     return false
   }
-  if (hidden.value === 'false' || bossSelect.selectedIndex === 0) {
+  if (hidden.value === false || bossSelect.selectedIndex === 0) {
     M.toast({html: '정보를 다운로드해주세요'})
     return false
   }
