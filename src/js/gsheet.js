@@ -3,7 +3,7 @@
 import { google } from 'googleapis';
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-
+const moment = require('moment')
 
 /**
  * @typedef {string[][]} sheetValues google spreadsheet data about ranges
@@ -276,7 +276,6 @@ class updateSheet extends gsheet {
     super(cred, sheetUrl, targetDate)
     
     this.list = []
-    this.merged = []
     this.boss = boss
     const userInput = order === "downward" ? damageList.split(/\r?\n/).reverse() : damageList.split(/\r?\n/)
     for (let v of userInput) {
@@ -393,7 +392,7 @@ class updateSheet extends gsheet {
         majorDimension: 'ROWS',
         ranges: this.date + '!A2:F31'
       })
-      //console.log(values)
+      //console.log(values.data.valueRanges[0].values)
       return values.data.valueRanges[0].values
     } catch (err) {
       throw new GetValueError(err)
@@ -407,6 +406,7 @@ class updateSheet extends gsheet {
   async updateValues(originalValues) {
 
     let merged = originalValues
+    
     for (let row of merged) {
       for (let item of this.list) {
         if (row[0][0].includes(item.name) && !row.includes(item.damage) && !row.includes('') && row.length < 6) {
@@ -417,6 +417,8 @@ class updateSheet extends gsheet {
     const userMap = await this.getUserMap()
     try {
       const lastEnterd = this.list[this.list.length-1]
+      const momentObj = new moment()
+      const lastEnterdString = "["+  momentObj.hour() + ":" + momentObj.minute() + "] " + userMap.get(lastEnterd.name) + " 님이 " + this.boss.name + " 몬스터를 " + lastEnterd.damage + "까지"
       const res = await this.sheets.spreadsheets.values.batchUpdate({
         spreadsheetId: this.spreadsheetId,
         resource: {
@@ -429,7 +431,7 @@ class updateSheet extends gsheet {
             {
               majorDimension: "ROWS",
               range: this.date + "!J2",
-              values: Array(Array(userMap.get(lastEnterd.name) + " 님이 " + this.boss.name + " 몬스터를 " + lastEnterd.damage + "까지"))
+              values: Array(Array(lastEnterdString))
             }
           ],
           valueInputOption: "USER_ENTERED"
@@ -474,9 +476,15 @@ class updateSheet extends gsheet {
       const current = await this.getCurrentValues()
       const merged = await this.updateValues(current)
       const colorMap = await this.getColors()
-      this.updateColors(colorMap, merged)
+      await this.updateColors(colorMap, merged)
+      return {message: "업로드 완료"}
     } catch (err) {
-      throw new Error (err)
+      if (err instanceof TypeError) {
+        return {message: "해당날짜 시트 데이터 미작성"}
+      }
+      else {
+        return {message: "문제가 발생했습니다. 로그인부터 다시 시도해주ㅜ세요"}  
+      }
     }
     
   }

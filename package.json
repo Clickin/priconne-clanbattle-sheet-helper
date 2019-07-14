@@ -1,10 +1,10 @@
 {
   "name": "priconne-clanbattle-sheet-helper",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "license": "MIT",
   "scripts": {
     "start": "pm2-runtime start ecosystem.config.js --env production",
-    "dev": "npm run build && nodemon ./dist/js/main.js",
+    "dev": "nodemon --exec babel-node ./src/js/main.js",
     "build": "babel ./src -d dist --copy-files"
   },
   "dependencies": {
@@ -12,11 +12,10 @@
     "cookie-parser": "~1.4.4",
     "core-js": "^3.1.4",
     "debug": "~2.6.9",
-    "express": "~4.16.1",
+    "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
-    "googleapi": "^1.0.2",
-    "googleapis": "39",
-    "http-errors": "~1.6.3",
+    "googleapis": "41",
+    "http-errors": "^1.6.3",
     "moment": "^2.24.0",
     "morgan": "~1.9.1",
     "pm2": "^3.5.1",
@@ -25,14 +24,14 @@
     "serve-favicon": "^2.5.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
-    "eslint": "^5.16.0",
+    "@babel/cli": "^7.5.0",
+    "@babel/core": "^7.5.4",
+    "@babel/node": "^7.5.0",
+    "@babel/preset-env": "^7.5.4",
+    "eslint": "^6.0.0",
     "nodemon": "^1.19.1"
   },
   "engines": {
     "node": "^10.0.0"
   }
 }
-  

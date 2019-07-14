@@ -38,14 +38,14 @@ router.get('/upload', (req, res) => {
 router.post('/upload', asyncHandler(async (req, res) => {
   const update = new updateSheet(oauth2Client, req.body.sheetUrl, req.body.targetDate, req.body.damageList, req.body.order, req.body.boss)
   try {
-    await update.update()
-    res.json({message: "업로드 완료"})
+    const message = await update.update()
+    res.json(message)
   } catch (err) {
-    console.log(err)
-    res.json({message: "문제가 발생했습니다. 로그인부터 다시 시도해주세요"})
+    res.json(message)
   }
   
 }))
+
 router.get('/info', asyncHandler(async (req, res) => {
   
   const info = new infoSheet(oauth2Client, req.query.sheetUrl, req.query.targetDate)
@@ -55,5 +55,6 @@ router.get('/info', asyncHandler(async (req, res) => {
   }
   res.json(data)
 }))
+
 
 export default router;
