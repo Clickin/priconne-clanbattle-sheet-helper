@@ -34,7 +34,7 @@
 
 ## 시트 예시
 ![예시](https://github.com/Clickin/priconne-clanbattle-sheet-helper/blob/master/examples/image/ko/example.png)
-6월에 사용했던 시트라 현재 버전과 약간 다를 수 있지만, 이런 식으로 나옵니다.
+6월에 사용했던 시트라 현재 버전과 약간 다를 수 있지만, 이런 식으로 클랜원 딜에 보스별 다른 색깔이 입혀져서 나옵니다.
 
 ## 입력기 웹사이트 사용법
 모바일 및 PC에서 사용가능합니다. 양쪽 다 사용법에 차이는 없으므로 모바일 페이지 기준으로 설명합니다.
