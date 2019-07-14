@@ -34,7 +34,7 @@ If you are not familar with A1 notation, check A1 notaion section at [google doc
 
 # Example sheet template
 My sheet template looks like below
-![boss reference](https://github.com/Clickin/priconne-clanbattle-sheet-helper/blob/master/examples/2019-07-04%2011%2025%2017.png)
-![member damage sheet](https://github.com/Clickin/priconne-clanbattle-sheet-helper/blob/master/examples/2019-07-04%2011%2025%2027.png)
+![boss reference](https://github.com/Clickin/priconne-clanbattle-sheet-helper/blob/master/examples/image/2019-07-04%2011%2025%2017.png)
+![member damage sheet](https://github.com/Clickin/priconne-clanbattle-sheet-helper/blob/master/examples/image/2019-07-04%2011%2025%2027.png)
 
 You can edit ranges which data saved and get information at src/js/gsheet.js 
