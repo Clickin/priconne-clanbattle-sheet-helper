@@ -3,7 +3,7 @@
 import { google } from 'googleapis';
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-const moment = require('moment')
+const moment = require('moment');
 
 /**
  * @typedef {string[][]} sheetValues google spreadsheet data about ranges
@@ -12,9 +12,15 @@ const moment = require('moment')
 
 /**
  * @typedef {Object} infoData JSON about bosses and last updated value
- * @property {sheetValues} boss array of boss ref and name pair
+ * @property {sheetValues} bossArr array of boss ref and name pair
  * @property {string} lastValue last updated value
  * @property {string[]} message message about errors
+ */
+
+/**
+ * @typedef {Object} userSelectedBoss JSON about user selected boss
+ * @property {string|number} ref reference of user selected boss
+ * @property {string} name name of user selected boss
  */
 
 /**
@@ -27,8 +33,9 @@ const moment = require('moment')
 /**
  * @typedef {Object} updateValuesData JSON about user input
  * @property {string} name user name
- * @property {string|number} boss boss reference
+ * @property {string|number} bossRef boss reference
  * @property {string|number} damage damage done by user
+ * @property {boolean} defeat user defeated boss boolean
  */
 
 /**
@@ -94,7 +101,7 @@ class UpdateError extends Error {
     super(...args)
     Error.captureStackTrace(this)
     this.name = "UpdateError"
-    this.message = "Failed to update value at thesheet"
+    this.message = "Failed to update value at the sheet"
   }
 }
 
@@ -225,7 +232,13 @@ class infoSheet extends gsheet
         message.push("API 키 만료로 재로그인 바람")
       }
     }
+    /**
+     * @type {sheetValues}
+     */
     let bossArray = [[]]
+    /**
+     * @type {string}
+     */
     let lastValue
     if (spreadsheetCheck) {
       try {
@@ -247,7 +260,7 @@ class infoSheet extends gsheet
         }
       }
       return {
-        boss: bossArray,
+        bossArr: bossArray,
         lastValue: lastValue,
         message: message
       }    
@@ -269,21 +282,27 @@ class updateSheet extends gsheet {
    * constructor description
    * @param {string} order order of damageList
    * @param {string} damageList list of damage ex: 클릭 123456
-   * @param {infoData} boss 
-   * @property {Array.<updateValuesData>} this.list
+   * @param {userSelectedBoss} bossData
   */ 
-  constructor (cred, sheetUrl, targetDate, damageList, order, boss) {
+  constructor (cred, sheetUrl, targetDate, damageList, order, bossData) {
     super(cred, sheetUrl, targetDate)
     
+    /**
+     * @type {Array.<updateValuesData>}
+     */
     this.list = []
-    this.boss = boss
+    /**
+     * @type {userSelectedBoss}
+     */
+    this.userBoss = bossData
     const userInput = order === "downward" ? damageList.split(/\r?\n/).reverse() : damageList.split(/\r?\n/)
     for (let v of userInput) {
       const parsedArr = v.trim().split(' ')
       this.list.push({
         name: parsedArr[0],
-        boss: this.boss.ref,
-        damage: parsedArr[1]
+        bossRef: this.userBoss.ref,
+        damage: parsedArr[1],
+        defeat: (parsedArr[2] !== undefined) ? true : false
       })
     }
     this.updateColors = this.updateColors.bind(this)
@@ -339,6 +358,24 @@ class updateSheet extends gsheet {
       throw new GetValueError(err)
     }
   }
+  /**
+   * @description make timestamp string
+   * @param {string} timezone 00:00 format timezone string
+   * @returns {string} parsed string of hours and minutes
+   */
+  async makeTimestamp(timezone) {
+    const momentObj = new moment().utcOffset(timezone)
+    let hour = String(momentObj.hours())
+    if (hour.length < 2) {
+      hour = '0' + hour
+    }
+    let minute = String(momentObj.minutes())
+    if (minute.length < 2) {
+      minute = '0' + minute
+    }
+    return '[' + hour + ':' + minute + ']'
+  }
+
 
   /**
    * @description update colors to target date sheet
@@ -355,18 +392,19 @@ class updateSheet extends gsheet {
      * request array of repeat cell
      * @type {repeatCell[]} 
      */
+    
     let request = []
-    merged.forEach(async (row, i) => { // rowindex == i + 1
-      row.forEach(async (cell, j) => { // columnindex == j
+    
+    for (let [i, row] of merged.entries()) {
+      for (let [j, cell] of row.entries()) {
         for (let item of this.list) {
           if (item.damage === cell) {
-            //console.log(item.boss)
-            const requestcell = await this.makeColorRequestObject(sheetId, i, j, colorMap.get('' + item.boss))
-            request.push(requestcell)
+            request.push(await this.makeColorRequestObject(sheetId, i, j, colorMap.get('' + item.bossRef)))
           }
         }
-      })
-    })
+      }
+    }
+    
     try {
       const answer = await this.sheets.spreadsheets.batchUpdate({
         spreadsheetId: this.spreadsheetId,
@@ -407,18 +445,30 @@ class updateSheet extends gsheet {
 
     let merged = originalValues
     
-    for (let row of merged) {
+    const defeatPOST = await this.sheets.spreadsheets.values.batchGet({
+      spreadsheetId: this.spreadsheetId,
+      majorDimension: 'COLUMNS',
+      ranges: this.date + '!I2:I31'
+    })
+    /**
+     * @type {string[][]} user that defeated boss column
+     */
+    let defeatList = defeatPOST.data.valueRanges[0].values
+    for (let [i, row] of merged.entries()) {
       for (let item of this.list) {
         if (row[0][0].includes(item.name) && !row.includes(item.damage) && !row.includes('') && row.length < 6) {
           row.push(item.damage)
+          if (item.defeat) {
+            defeatList[0][i] = (row.length - 3) + "타 " + this.userBoss.name + " 격파"
+          }
         }
       }
     }
+    //console.log(defeatList)
     const userMap = await this.getUserMap()
     try {
-      const lastEnterd = this.list[this.list.length-1]
-      const momentObj = new moment()
-      const lastEnterdString = "["+  momentObj.hour() + ":" + momentObj.minute() + "] " + userMap.get(lastEnterd.name) + " 님이 " + this.boss.name + " 몬스터를 " + lastEnterd.damage + "까지"
+      const lastEntered = this.list[this.list.length-1]
+      const lastEnterdString = await this.makeTimestamp("+09:00") + userMap.get(lastEntered.name) + " 님이 " + this.userBoss.name + " 몬스터를 " + lastEntered.damage + "까지"
       const res = await this.sheets.spreadsheets.values.batchUpdate({
         spreadsheetId: this.spreadsheetId,
         resource: {
@@ -432,6 +482,11 @@ class updateSheet extends gsheet {
               majorDimension: "ROWS",
               range: this.date + "!J2",
               values: Array(Array(lastEnterdString))
+            },
+            {
+              majorDimension: "COLUMNS",
+              range: this.date + "!I2:I31",
+              values: defeatList
             }
           ],
           valueInputOption: "USER_ENTERED"
@@ -443,6 +498,8 @@ class updateSheet extends gsheet {
       throw new UpdateError(err)
     }
   }
+
+  
   /**
    * @description get user reference and their name and map corresponding
    * @returns {userMap} returns mapped data
@@ -466,24 +523,25 @@ class updateSheet extends gsheet {
   }
   /**
    * @description update sheet using data retreived from POST
+   * @returns {Object} Object contains message to user
    */
   async update() {
-    if (this.list[0].name === '' || this.list[0].boss === 'undefined' || this.list[0].damage === 'undefined') {
-      throw new Error('값을 입력해주세요!')
+    if (this.list[0].name === '' || this.list[0].bossRef === 'undefined' || this.list[0].damage === 'undefined') {
+      return {message: "값을 입력해주세요"}
     }
     
     try {
       const current = await this.getCurrentValues()
       const merged = await this.updateValues(current)
       const colorMap = await this.getColors()
-      await this.updateColors(colorMap, merged)
+      this.updateColors(colorMap, merged)
       return {message: "업로드 완료"}
     } catch (err) {
       if (err instanceof TypeError) {
         return {message: "해당날짜 시트 데이터 미작성"}
       }
       else {
-        return {message: "문제가 발생했습니다. 로그인부터 다시 시도해주ㅜ세요"}  
+        return {message: "문제가 발생했습니다. 로그인부터 다시 시도해주세요"}  
       }
     }
     
