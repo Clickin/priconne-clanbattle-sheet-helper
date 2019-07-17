@@ -41,10 +41,10 @@ function getInfo() {
     if (res.data.lastValue !== undefined) {
       lastValue.innerHTML = '마지막 입력: ' + res.data.lastValue
     }
-    if (res.data.boss !== undefined) {
-      for (let i = 0; i < res.data.boss.length; i++) {
-        bossSelect.options[i+1].innerText = res.data.boss[i][1]
-        bossSelect.options[i+1].value = res.data.boss[i][0]
+    if (res.data.bossArr !== undefined) {
+      for (let i = 0; i < res.data.bossArr.length; i++) {
+        bossSelect.options[i+1].innerText = res.data.bossArr[i][1]
+        bossSelect.options[i+1].value = res.data.bossArr[i][0]
       }
       M.FormSelect.init(bossSelect)
     }
