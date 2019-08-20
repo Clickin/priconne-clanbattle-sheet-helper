@@ -1,5 +1,5 @@
 # 프리코네 클랜배틀 구글시트 입력기 한국어 사용법
-템플릿 시트 주소: [링크](https://docs.google.com/spreadsheets/d/1EWZFHY1QPzJJTGdvOByrV6NpJ30DY-aT_kpHCBzMy0Y/edit?usp=sharing)
+템플릿 시트 주소: [링크](https://docs.google.com/spreadsheets/d/1P4b2lME-mhwgSeXIa0DXQXO27Z_636x9qt26JKMaiRk/edit?usp=sharing)
 
 입력기 주소: [링크](https://grimm-priconne.herokuapp.com)
 
